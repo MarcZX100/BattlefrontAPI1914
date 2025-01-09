@@ -4,9 +4,9 @@
   "description": "API wrapper for Supremacy 1914",
   "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node tests/index.js",
     "build": "npx tsc",
-    "app": "node dist/app.js",
+    "app": "node dist/main.js",
     "lint": "npx eslint src/**/*.ts"
   },
   "keywords": [],
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/axios": "^0.9.36",
+    "@types/js-sha1": "^0.6.3",
     "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
