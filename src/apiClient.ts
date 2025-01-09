@@ -1,4 +1,3 @@
-import config from './config';
 import { RequestBuilder } from './requestBuilder';
 import { UserApi } from './endpoints/Users';
 
@@ -7,7 +6,7 @@ export class BattlefrontAPI {
 
   public Users: UserApi;
 
-  constructor() {
+  constructor(config: Record<string, any>) {
     this.config = config;
 
     this.Users = new UserApi(this);
