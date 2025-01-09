@@ -1,16 +1,16 @@
 import config from './config';
 import { RequestBuilder } from './requestBuilder';
-import { UserApi } from './endpoints/user';
+import { UserApi } from './endpoints/Users';
 
 export class BattlefrontAPI {
   private config: Record<string, any>;
 
-  public User: UserApi;
+  public Users: UserApi;
 
   constructor() {
     this.config = config;
 
-    this.User = new UserApi(this);
+    this.Users = new UserApi(this);
   }
 
   async sendRequest<T>(action: string, data: Record<string, any>, retry = false): Promise<T> {

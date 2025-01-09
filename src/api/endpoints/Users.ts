@@ -5,7 +5,7 @@ export class UserApi {
     this.apiClient = apiClient;
   }
 
-  async getUserDetails(userID: number, properties: string[] = []): Promise<any> {
+  async getDetails(userID: number, properties: string[] = []): Promise<any> {
     const data: Record<string, any> = { userID };
 
     if (Array.isArray(properties)) {
