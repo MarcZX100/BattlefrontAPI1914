@@ -16,6 +16,8 @@ export class UserApi {
    * @returns User
    */
   async getDetails(userID: number, options: string[] = this.defaultOptionsArray): Promise<any> {
+    let startTime = Date.now();
+
     const data: Record<string, any> = { userID };
 
     if (Array.isArray(options)) {
@@ -28,15 +30,21 @@ export class UserApi {
       });
     }
 
-    return this.apiClient.sendRequest('getUserDetails', data);
+    let result = await this.apiClient.sendRequest('getUserDetails', data);
+    result.elapsedTime = (Date.now() - startTime)
+    return result;
   }
 
   async search(username: string) {
+    let startTime = Date.now();
+
     let data = {
       username: username
     }
 
-    return this.apiClient.sendRequest('searchUser', data);
+    let result = await this.apiClient.sendRequest('searchUser', data);
+    result.elapsedTime = (Date.now() - startTime)
+    return result;
   }
 
   async sendMail() {
