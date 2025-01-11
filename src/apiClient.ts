@@ -1,17 +1,20 @@
 import { RequestBuilder } from './requestBuilder';
 import { UserApi } from './endpoints/Users';
+import { GameApi } from './endpoints/Games';
 import { AllianceApi } from './endpoints/Alliances';
 
 export class BattlefrontAPI {
   private config: Record<string, any>;
 
   public Users: UserApi;
+  public Games: GameApi;
   public Alliances: AllianceApi;
 
   constructor(config: Record<string, any>) {
     this.config = config;
 
     this.Users = new UserApi(this);
+    this.Games = new GameApi(this);
     this.Alliances = new AllianceApi(this);
   }
 
@@ -56,6 +59,59 @@ export class BattlefrontAPI {
       throw error;
     }
   }
+
+  async sendGameRequest<T>(gameID: string, data: Record<string, any>): Promise<T> {
+
+    try {
+      const response = await fetch(`https://${data.gameServer}/`, {
+        "headers": {
+          "accept": "text/plain, */*; q=0.01",
+          "accept-language": "en-US,en;q=0.9",
+          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "sec-ch-ua": "\"Chromium\";v=\"130\", \"Opera GX\";v=\"115\", \"Not?A_Brand\";v=\"99\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "cross-site"
+        },
+        "body": JSON.stringify({
+              "requestID": 0,
+              "@c": "ultshared.action.UltUpdateGameStateAction",
+              "actions": [{
+                  "requestID": "actionReq-1",
+                  "@c": "ultshared.action.UltLoginAction",
+                  "resolution": "1920x1080"
+              }],
+              "lastCallDuration": 0,
+              "client": "s1914-client-ultimate",
+              "siteUserID": 0,
+              "adminLevel": 0,
+              "gameID": gameID,
+              "playerID": 0,
+              "stateType": data.stateID,
+              "option": data.option,
+              "rights": data.rights,
+              "userAuth": data.userAuth,
+              "tstamp": data.tstamp
+          }),
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Error during call to server "${data.gameServer}":`, error);
+
+      throw error;
+    }
+  }
+
 }
 
 // export const client = new BattlefrontAPI(config);
