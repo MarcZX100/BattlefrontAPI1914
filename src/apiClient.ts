@@ -1,15 +1,18 @@
 import { RequestBuilder } from './requestBuilder';
 import { UserApi } from './endpoints/Users';
+import { AllianceApi } from './endpoints/Alliances';
 
 export class BattlefrontAPI {
   private config: Record<string, any>;
 
   public Users: UserApi;
+  public Alliances: AllianceApi;
 
   constructor(config: Record<string, any>) {
     this.config = config;
 
     this.Users = new UserApi(this);
+    this.Alliances = new AllianceApi(this);
   }
 
   async sendRequest<T>(action: string, data: Record<string, any>, retry = false): Promise<T> {
