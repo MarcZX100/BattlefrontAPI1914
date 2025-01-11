@@ -1,7 +1,7 @@
 {
-  "name": "battlefrontapi1914",
+  "name": "battlefrontapi",
   "version": "1.0.0",
-  "description": "API wrapper for Supremacy 1914",
+  "description": "API wrapper for Bytro games (Supremacy 1914, Call of War and Iron Order).",
   "main": "dist/app.js",
   "scripts": {
     "test": "node tests/index.js",
