@@ -106,7 +106,7 @@ export class UserApi {
    * Retrieves a ranking list based on a specified ranking type.
    * Allows pagination and selection of the number of entries to return.
    * 
-   * @param {string} [type="globalRank"] - The type of ranking to fetch (e.g., "globalRank", "monthRank").
+   * @param {string} [type="globalRank"] - The type of ranking to fetch. Types allowed: "monthRank", "weekRank", "globalRank", "highestMonthRank", "highestWeekRank", "lastMonthRank", "lastWeekRank".
    * @param {number} [page=0] - The page number for pagination.
    * @param {number} [numEntries=10] - The number of entries to retrieve per page.
    * @returns {Promise<any>} - A promise resolving to the ranking data for the selected type.
@@ -121,7 +121,7 @@ export class UserApi {
     }
 
     const data = {
-      type: type, // ["monthRank", "weekRank", "globalRank", "highestMonthRank", "highestWeekRank", "lastMonthRank", "lastWeekRank"]
+      type: type,
       page: page,
       numEntries: numEntries
     };

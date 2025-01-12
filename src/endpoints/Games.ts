@@ -1,5 +1,5 @@
 /**
- * The GameApi class provides methods to interact with a game's backend API.
+ * The GameApi class provides methods to interact with a game's server.
  * It supports operations like retrieving game tokens, searching for games, and fetching game details.
  */
 export class GameApi {
@@ -21,14 +21,14 @@ export class GameApi {
     constructor(apiClient: Record<string, any>) {
       this.apiClient = apiClient;
       this.availableServerLanguages = [
-        'cs', 'de', 'el', 'en', 'es', 'fr', 'id', 'it', 'ja', 'nl', 'pl', 'pt', 'ru', 'tr',
+        "cs", "de", "el", "en", "es", "fr", "id", "it", "ja", "nl", "pl", "pt", "ru", "tr",
       ];
     }
   
     /**
      * Retrieves the token for a specific game.
      *
-     * @param gameID - The unique identifier for the game.
+     * @param gameID - The identifier of the game.
      * @returns A promise resolving to the game token or an error if the game is not found.
      */
     async getToken(gameID: number) {
@@ -89,7 +89,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches an old-style game overview. This call can take longer due to the need to fetch all players.
+     * Fetches original game overview. This call takes exceedingly longer, which is why {@link getOverview} was created.
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the game overview.
@@ -163,10 +163,10 @@ export class GameApi {
     }
   
     /**
-     * Fetches advanced game details based on state.
+     * Fetches advanced game details based on state and state-specific options.
      *
      * @param gameID - The unique identifier for the game.
-     * @param stateID - The state ID to fetch. Defaults to 0.
+     * @param stateID - The state ID to fetch. Defaults to 0 which equals all.
      * @param stateOption - Additional state option. Optional.
      * @returns A promise resolving to the game details or an error if the game is not found.
      */
@@ -194,7 +194,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches game details with stateID 0.
+     * Fetches game details with all states (stateID 0).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the game details or an error if the game is not found.
@@ -209,7 +209,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches players for a given game.
+     * Fetches players for a given game (stateID 1).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the game players or an error if the game is not found.
@@ -224,7 +224,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches the newspaper for a specific day in the game.
+     * Fetches the newspaper for a specific day in the game (stateID 2).
      *
      * @param gameID - The unique identifier for the game.
      * @param day - The day to fetch the newspaper for.
@@ -240,7 +240,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches all newspapers for a game.
+     * Fetches all newspapers for a game (stateID 2).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to all the game newspapers or an error if the game is not found.
@@ -249,7 +249,7 @@ export class GameApi {
       const startTime = Date.now();
   
       const resultLastDay = await this.getAdvancedDetails(gameID, 2);
-      let lastDay = resultLastDay.result.day;
+      const lastDay = resultLastDay.result.day;
   
       const allNewspaper = await Promise.all(
         (Array.from({ length: lastDay + 1 }, (_, i) => i)).map((day) =>
@@ -259,7 +259,7 @@ export class GameApi {
         )
       );
   
-      let result = {
+      const result = {
         resultCode: 0,
         resultMessage: "ok",
         result: allNewspaper,
@@ -271,7 +271,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches provinces data for a given game.
+     * Fetches provinces data for a given game (stateID 3).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the provinces data or an error if the game is not found.
@@ -286,7 +286,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches a map with province statistics for a given game.
+     * Fetches a map with province statistics for a given game (stateID 4).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the map with province statistics or an error if the game is not found.
@@ -301,7 +301,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches game-related statistics.
+     * Fetches game-related statistics (stateID 5).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the game statistics or an error if the game is not found.
@@ -316,7 +316,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches the scenario statistics for a game.
+     * Fetches the scenario statistics for a game (stateID 6).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the scenario statistics or an error if the game is not found.

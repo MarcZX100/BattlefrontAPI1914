@@ -7,14 +7,14 @@ import { GameApi } from './endpoints/Games';
 import { AllianceApi } from './endpoints/Alliances';
 
 /**
- * Represents the main Battlefront API client, providing access to various API endpoints
+ * Represents the BytroFront client, providing access to various API endpoints
  * and utilities for interacting with the game server.
  */
-export class BattlefrontAPI {
+export class BytroFront {
   private config: Record<string, any>;
   private errors: Record<string, any>;
 
-  /** Provides access to utility-related API methods. */
+  /** Provides access to utility-related API methods and tools. */
   public Util: UtilApi;
   /** Provides access to user-related API methods. */
   public Users: UserApi;
@@ -44,12 +44,12 @@ export class BattlefrontAPI {
    * @template T - The expected return type of the response.
    * @param action - The action or endpoint to call on the API server.
    * @param data - The payload data to include in the request, provided as key-value pairs.
-   * @returns A promise resolving to the response from the server, typed as `T`.
+   * @returns A promise resolving to the response from the server.
    * @throws Will throw an error if the request fails or if the server returns a non-OK status.
    *
    * @example
    * ```typescript
-   * const response = await api.sendRequest<UserDetails>('getUserDetails', { userID: 12345 });
+   * const response = await api.sendRequest('getUserDetails', { userID: 48035824 });
    * console.log(response);
    * ```
    */
@@ -90,13 +90,13 @@ export class BattlefrontAPI {
    *
    * @example
    * ```typescript
-   * const response = await api.sendGameRequest<GameState>('game12345', {
-   *   gameServer: 'server.game.com',
-   *   stateID: 42,
-   *   option: 'start',
-   *   rights: 'all',
-   *   userAuth: 'authToken',
-   *   tstamp: 'timestamp',
+   * const response = await api.sendGameRequest<GameState>('9182721', {
+   *   gameServer: 'xxxxxxxx.c.bytro.com',
+   *   stateID: 2,
+   *   option: 3,
+   *   rights: 'chat',
+   *   userAuth: 'hash',
+   *   tstamp: '1982337111',
    * });
    * console.log(response);
    * ```

@@ -60,7 +60,7 @@ class CustomErrors {
         resultMessage,
         resultMessageLarge: error ? error.resultMessageLarge : "Unknown error",
         result: error ? error.result : null,
-        version: "4831_live" // API version or build identifier
+        version: "4831_live" // I don't really know if the real API version changes, so as of now I'll keep it like this.
       };
     }
   }

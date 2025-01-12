@@ -1,17 +1,18 @@
 {
-  "name": "battlefrontapi",
+  "name": "bytrofront",
   "version": "1.0.0",
-  "description": "API wrapper for Bytro games (Supremacy 1914, Call of War and Iron Order).",
-  "main": "dist/app.js",
+  "description": "Unofficial API wrapper for Bytro games (Supremacy 1914, Call of War and Iron Order).",
+  "main": "dist/index.js",
   "scripts": {
     "test": "node tests/index.js",
     "build": "npx tsc",
-    "app": "node dist/main.js",
+    "app": "node dist/index.js",
     "lint": "npx eslint src/**/*.ts",
+    "lintfix": "npx eslint src/**/*.ts --fix",
     "doc": "npx typedoc --out docs --entryPointStrategy expand ./src"
   },
   "keywords": [],
-  "author": "",
+  "author": "MarcZX100",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.9",

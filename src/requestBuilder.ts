@@ -13,9 +13,9 @@ export class RequestBuilder {
    *
    * @example
    * ```typescript
-   * const url = "https://example.com?param1=value1&param2=value2";
-   * const value = RequestBuilder.getParameterByName("param1", url);
-   * console.log(value); // Outputs: "value1"
+   * const url = "https://www.supremacy1914.com/index.php?action=log&hash=yes&outputFormat=json&L=0";
+   * const value = RequestBuilder.getParameterByName("outputFormat", url);
+   * console.log(value); // Outputs: "0"
    * ```
    */
   static getParameterByName(name: string, url: string): string | null {
@@ -37,6 +37,7 @@ export class RequestBuilder {
    *   - `config.userId` - The ID of the authenticated user.
    *   - `config.trackingSource` - The source of the tracking data.
    *   - `config.websiteURL` - The base URL for the API.
+   *   - Amongst many others.
    *
    * @returns An object containing:
    *   - `url`: The constructed request URL.
@@ -45,21 +46,21 @@ export class RequestBuilder {
    *
    * @example
    * ```typescript
-   * const action = "getUserInfo";
-   * const data = { id: 12345 };
+   * const action = "getUserDetails";
+   * const data = { userID: 12345 };
    * const config = {
-   *   webapi: { key: "secureKey", version: "1.0" },
-   *   uber: { authTstamp: "timestamp123", authHash: "secureHash" },
+   *   webapi: { key: "apiKey", version: "1.0" },
+   *   uber: { authTstamp: "1276123139", authHash: "secureHash" },
    *   userId: "user123",
    *   trackingSource: "web",
-   *   websiteURL: "https://example.com/",
+   *   websiteURL: "https://supremacy1914.com/",
    * };
    *
    * const requestDetails = RequestBuilder.prepare(action, data, config);
    * console.log(requestDetails);
    * // Outputs:
    * // {
-   * //   url: "https://example.com/index.php?eID=api&key=secureKey&action=getUserInfo&hash=...",
+   * //   url: "https://supremacy1914.com/index.php?eID=api&key=apiKey&action=getUserDetails&hash=...",
    * //   postData: "data=...",
    * //   type: "POST",
    * // }

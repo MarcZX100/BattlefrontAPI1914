@@ -19,7 +19,7 @@ export class AllianceApi {
   /**
    * Retrieves detailed information about a specific alliance.
    * 
-   * @param allianceID - The unique identifier of the alliance.
+   * @param allianceID - The alliance's identifier.
    * @param members - Whether to include the list of alliance members in the response. Defaults to `true`.
    * @returns A promise resolving to the details of the specified alliance, including elapsed time.
    */
@@ -37,9 +37,9 @@ export class AllianceApi {
   }
 
   /**
-   * Retrieves battle statistics for a specific alliance.
+   * Retrieves battle statistics for a given alliance.
    * 
-   * @param allianceID - The unique identifier of the alliance.
+   * @param allianceID - The alliance's identifier.
    * @returns A promise resolving to the battle statistics of the specified alliance, including elapsed time.
    */
   async getBattles(allianceID: number) {

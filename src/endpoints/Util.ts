@@ -21,7 +21,7 @@ export class UtilApi {
   async getContentItems(lang: string = "en") {
     const startTime = Date.now();
 
-    let data = {
+    const data = {
       locale: lang,
       units: 1,
       upgrades: 1,
@@ -41,8 +41,9 @@ export class UtilApi {
   }
 
   /**
-   * Retrieves complete content items for a specific language.
+   * Retrieves content items for a specific language.
    * This method fetches the content items by first searching for a game and then getting its associated items.
+   * This way, items are more complete in regards of data and are also already properly organized.
    * 
    * @param {string} [lang="en"] - The language for which to retrieve the complete content items (default is English).
    * @returns {Promise<any>} - A promise resolving to the complete content items associated with the game.
@@ -52,7 +53,7 @@ export class UtilApi {
 
     // Fetch the list of games in the specified language
     const gameList = await this.apiClient.Games.search(5, 0, lang, "", 8);
-    let targetGameID = gameList.result.games[0].properties.gameID;
+    const targetGameID = gameList.result.games[0].properties.gameID;
 
     // Get the items for the specific game
     const result = await this.apiClient.Games.getItems(targetGameID);
@@ -68,7 +69,7 @@ export class UtilApi {
    * @returns {Promise<Record<string, any>>} - A promise resolving to the loaded content items.
    */
   async loadContentItems(lang: string = "en") {
-    this.contentItems = await this.getCompleteContentItems(lang).then((result) => { return result.result });
+    this.contentItems = await this.getCompleteContentItems(lang).then((result) => { return result.result; });
     return this.contentItems;
   }
 }
