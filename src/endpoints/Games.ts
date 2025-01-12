@@ -66,7 +66,7 @@ export class GameApi {
         let properties = await this.apiClient.sendRequest("getGames", {gameID: gameID}).then((result: any)=>{
             return result.result[0]?.properties
         });
-        let players = await this.getDetails(gameID, 1);
+        let players = await this.getAdvancedDetails(gameID, 1);
 
         if (!players || !properties) {
             return {
@@ -116,7 +116,7 @@ export class GameApi {
         return result;
     }
 
-    async getDetails(gameID: number, stateID: number = 0, stateOption: number|null = null) {
+    async getAdvancedDetails(gameID: number, stateID: number = 0, stateOption: number|null = null) {
         const startTime = Date.now();
 
         let tokenRaw = await this.getToken(gameID);
@@ -133,6 +133,45 @@ export class GameApi {
         
         const result = await this.apiClient.sendGameRequest(gameID, data);
         result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getDetails(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 0);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getNewspaper(gameID: number, day: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 2, day);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getAllNewspaper(gameID: number) {
+        const startTime = Date.now();
+
+        const resultLastDay = await this.getAdvancedDetails(gameID, 2);
+        let lastDay = resultLastDay.result.day;
+
+        const allNewspaper = await Promise.all(
+            (Array.from({ length: lastDay + 1 }, (_, i) => i)).map(day => this.getNewspaper(gameID, day).then((x) => { return x.result }))
+        );
+
+        let result = {
+            resultCode: 0,
+            resultMessage: "ok",
+            result: allNewspaper,
+            version: "4831_live",
+            elapsedTime: (Date.now() - startTime)
+        }
+
         return result;
     }
 }  
