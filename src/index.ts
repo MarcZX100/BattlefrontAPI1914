@@ -1,4 +1,6 @@
 import { RequestBuilder } from './requestBuilder';
+import CustomErrors from './errors';
+
 import { UtilApi } from './endpoints/Util';
 import { UserApi } from './endpoints/Users';
 import { GameApi } from './endpoints/Games';
@@ -6,6 +8,7 @@ import { AllianceApi } from './endpoints/Alliances';
 
 export class BattlefrontAPI {
   private config: Record<string, any>;
+  private errors: Record<string, any>;
 
   public Util: UtilApi;
   public Users: UserApi;
@@ -14,6 +17,7 @@ export class BattlefrontAPI {
 
   constructor(config: Record<string, any>) {
     this.config = config;
+    this.errors = CustomErrors;
 
     this.Util = new UtilApi(this);
     this.Users = new UserApi(this);
@@ -21,7 +25,8 @@ export class BattlefrontAPI {
     this.Alliances = new AllianceApi(this);
   }
 
-  async sendRequest<T>(action: string, data: Record<string, any>, retry = false): Promise<T> {
+
+  async sendRequest<T>(action: string, data: Record<string, any>): Promise<T> {
     const { url, postData, type } = RequestBuilder.prepare(action, data, this.config);
 
     try {
@@ -45,20 +50,11 @@ export class BattlefrontAPI {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}`);
+        throw new Error(`HTTP request failed with status: ${response.statusText}`);
       }
 
       return await response.json();
     } catch (error) {
-      console.error(`Error during API call to "${action}":`, error);
-
-      if (retry) {
-        console.log('Retrying...');
-        return new Promise((resolve) =>
-          setTimeout(() => resolve(this.sendRequest<T>(action, data, retry)), 5000)
-        );
-      }
-
       throw error;
     }
   }
@@ -104,7 +100,7 @@ export class BattlefrontAPI {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}`);
+        throw new Error(`HTTP request failed with status: ${response.statusText}`);
       }
 
       return await response.json();

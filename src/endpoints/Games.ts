@@ -1,3 +1,4 @@
+
 export class GameApi {
     private apiClient: Record<string, any>;
     public availableServerLanguages: Record<string, any>;
@@ -14,7 +15,10 @@ export class GameApi {
             gameID: gameID
         };
     
-        const result = await this.apiClient.sendRequest("getGameToken", data);
+        let result = await this.apiClient.sendRequest("getGameToken", data);
+        if (result.resultCode !== 0) {
+            result = this.apiClient.errors.getError("game not found")
+        }
         result.elapsedTime = (Date.now() - startTime);
         return result;
     }
@@ -44,6 +48,7 @@ export class GameApi {
         };
     
         const result = await this.apiClient.sendRequest("getGames", data);
+        
         result.elapsedTime = (Date.now() - startTime);
         return result;
     }
@@ -68,15 +73,9 @@ export class GameApi {
             return result.result[0]?.properties
         });
         let players = await this.getAdvancedDetails(gameID, 1);
-
-        if (!players || !properties) {
-            return {
-                resultCode: -1,
-                resultMessage: "Failed to fetch game data",
-                result: null,
-                version: "4831_live",
-                elapsedTime: Date.now() - startTime,
-            };
+        
+        if (properties == undefined || players.resultCode != 0) {
+            return this.apiClient.errors.getError("game not found")
         }
 
         const realPlayers = Object.values(players.result.players).filter((x: any) => x.siteUserID > 1);
@@ -121,6 +120,10 @@ export class GameApi {
         const startTime = Date.now();
 
         let tokenRaw = await this.getToken(gameID);
+        if (tokenRaw.resultCode !== 0) {
+            return this.apiClient.errors.getError("game not found")
+        }
+
         let token = tokenRaw.result.token;
 
         let data = {
