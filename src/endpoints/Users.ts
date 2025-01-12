@@ -83,16 +83,16 @@ export class UserApi {
   async getRanking(type: string = "globalRank", page: number = 0, numEntries: number = 10) {
     const startTime = Date.now();
 
-    const data = {
-      type: type, // ["monthRank", "weekRank", "globalRank", "highestMonthRank", "highestWeekRank", "lastMonthRank", "lastWeekRank"]
-      page: page,
-      numEntries: numEntries
-    };
-
     if (numEntries > 50){
       console.warn("The maximum number of entries allowed is 50.");
     } else if (numEntries < 5) {
       console.warn("The minimum number of entries allowed is 5.");
+    };
+    
+    const data = {
+      type: type, // ["monthRank", "weekRank", "globalRank", "highestMonthRank", "highestWeekRank", "lastMonthRank", "lastWeekRank"]
+      page: page,
+      numEntries: numEntries
     };
 
     if (!(this.rankingOptionsArray).includes(type)) {

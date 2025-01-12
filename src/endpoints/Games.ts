@@ -1,12 +1,10 @@
-import { stringify } from "querystring";
-
-  
 export class GameApi {
     private apiClient: Record<string, any>;
-
+    public availableServerLanguages: Record<string, any>;
 
     constructor(apiClient: Record<string, any>) {
         this.apiClient = apiClient;
+        this.availableServerLanguages = ['cs', 'de', 'el', 'en', 'es', 'fr', 'id', 'it', 'ja', 'nl', 'pl', 'pt', 'ru', 'tr'];
     }
 
     async getToken(gameID: number) {
@@ -24,6 +22,16 @@ export class GameApi {
     async search(numEntries: number = 10, page: number = 0, lang: string = "en", filter: string = "") {
         const startTime = Date.now();
 
+        if (!(this.availableServerLanguages).includes(lang)) {
+            console.warn(`Language ${lang} does not exist.`);
+            lang = "en";
+        };
+        if (numEntries > 50){
+            console.warn("The maximum number of entries allowed is 50.");
+        } else if (numEntries < 5) {
+            console.warn("The minimum number of entries allowed is 5.");
+        };
+
         let data = {
             numEntriesPerPage: numEntries,
             page: page,
@@ -32,13 +40,6 @@ export class GameApi {
             search: !!filter ? filter : null,
             global: 1,
             loadUserLoginData: 1
-        };
-        console.log(data)
-
-        if (numEntries > 50){
-            console.warn("The maximum number of entries allowed is 50.");
-        } else if (numEntries < 5) {
-            console.warn("The minimum number of entries allowed is 5.");
         };
     
         const result = await this.apiClient.sendRequest("getGames", data);
@@ -58,7 +59,6 @@ export class GameApi {
         result.elapsedTime = (Date.now() - startTime);
         return result;
     }
-
 
     async getOverview(gameID: number) {
         const startTime = Date.now();
