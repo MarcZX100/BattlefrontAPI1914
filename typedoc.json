@@ -1,7 +1,7 @@
 {
     "out": "docs",
     "exclude": ["**/node_modules/**"],
-    "name": "Battlefront API",
+    "name": "BytroFront",
     "theme": "default"
   }
   
