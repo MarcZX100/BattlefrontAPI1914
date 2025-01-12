@@ -7,7 +7,8 @@
     "test": "node tests/index.js",
     "build": "npx tsc",
     "app": "node dist/main.js",
-    "lint": "npx eslint src/**/*.ts"
+    "lint": "npx eslint src/**/*.ts",
+    "doc": "npx typedoc --out docs --entryPointStrategy expand ./src"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "@typescript-eslint/parser": "^8.19.1",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
+    "typedoc": "^0.27.6",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.19.1"
   }

@@ -1,0 +1,7 @@
+{
+    "out": "docs",                  // Output folder for documentation
+    "exclude": ["**/node_modules/**"], // Exclude node_modules
+    "name": "Battlefront API",    // Project name
+    "theme": "default"              // Use the default theme
+  }
+  
