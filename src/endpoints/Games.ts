@@ -1,3 +1,5 @@
+import { stringify } from "querystring";
+
   
 export class GameApi {
     private apiClient: Record<string, any>;
@@ -29,11 +31,9 @@ export class GameApi {
             isFilterSearch: !!filter,
             search: !!filter ? filter : null,
             global: 1,
-            password: 0,
-            openSlots: 1,
-            allianceGame: 0,
             loadUserLoginData: 1
         };
+        console.log(data)
 
         if (numEntries > 50){
             console.warn("The maximum number of entries allowed is 50.");
@@ -47,7 +47,7 @@ export class GameApi {
     }
 
     // As the server has to fetch every player in the game, this takes excessively long
-    async getOverview(gameID: number) {
+    async getOverviewOld(gameID: number) {
         const startTime = Date.now();
     
         const data = {
@@ -56,6 +56,63 @@ export class GameApi {
     
         const result = await this.apiClient.sendRequest("getGame", data);
         result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+
+    async getOverview(gameID: number) {
+        const startTime = Date.now();
+        
+        let properties = await this.apiClient.sendRequest("getGames", {gameID: gameID}).then((result: any)=>{
+            return result.result[0]?.properties
+        });
+        let players = await this.getDetails(gameID, 1);
+
+        if (!players || !properties) {
+            return {
+                resultCode: -1,
+                resultMessage: "Failed to fetch game data",
+                result: null,
+                version: "4831_live",
+                elapsedTime: Date.now() - startTime,
+            };
+        }
+
+        const realPlayers = Object.values(players.result.players).filter((x: any) => x.siteUserID > 1);
+        
+        const finalDictionary: any = realPlayers.reduce((dict: any, x: any) => {
+            dict[x.siteUserID] = {
+            siteUserID: x.siteUserID,
+            playerID: x.playerID,
+            login: x.userName,
+            nation: x.nationName,
+            teamID: x.teamID
+            };
+            return dict;
+        }, {});
+        
+        const userDetails = await Promise.all(
+            Object.keys(finalDictionary).map(siteUserID => this.apiClient.Users.getDetails(siteUserID))
+        );
+        
+        userDetails.forEach(user => {
+            const userId = user.result.id;
+            if (finalDictionary[userId]) {
+                finalDictionary[userId].profile = user.result;
+            }
+        });
+        
+        let result = {
+            resultCode: 0,
+            resultMessage: "ok",
+            result: {
+                logins: Object.values(finalDictionary),
+                properties: properties
+            },
+            version: "4831_live",
+            elapsedTime: (Date.now() - startTime)
+        }
+    
         return result;
     }
 
