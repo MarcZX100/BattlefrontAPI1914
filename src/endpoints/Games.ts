@@ -74,7 +74,7 @@ export class GameApi {
         });
         let players = await this.getAdvancedDetails(gameID, 1);
         
-        if (properties == undefined || players.resultCode != 0) {
+        if (properties == undefined || (typeof players.result) != "object") {
             return this.apiClient.errors.getError("game not found")
         }
 
