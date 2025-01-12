@@ -19,6 +19,33 @@ export class GameApi {
         return result;
     }
 
+    async search(numEntries: number = 10, page: number = 0, lang: string = "en", filter: string = "") {
+        const startTime = Date.now();
+
+        let data = {
+            numEntriesPerPage: numEntries,
+            page: page,
+            lang: lang,
+            isFilterSearch: !!filter,
+            search: !!filter ? filter : null,
+            global: 1,
+            password: 0,
+            openSlots: 1,
+            allianceGame: 0,
+            loadUserLoginData: 1
+        };
+
+        if (numEntries > 50){
+            console.warn("The maximum number of entries allowed is 50.");
+        } else if (numEntries < 5) {
+            console.warn("The minimum number of entries allowed is 5.");
+        };
+    
+        const result = await this.apiClient.sendRequest("getGames", data);
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
     // As the server has to fetch every player in the game, this takes excessively long
     async getOverview(gameID: number) {
         const startTime = Date.now();
