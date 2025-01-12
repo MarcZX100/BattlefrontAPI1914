@@ -145,6 +145,15 @@ export class GameApi {
         return result;
     }
 
+    async getPlayers(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 1);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
     async getNewspaper(gameID: number, day: number) {
         const startTime = Date.now();
 
@@ -174,4 +183,59 @@ export class GameApi {
 
         return result;
     }
+
+    async getProvinces(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 3);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getMarket(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 4);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getRelations(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 5);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getItems(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 11);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getConfig(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 12);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
+    async getStatistics(gameID: number) {
+        const startTime = Date.now();
+
+        const result = await this.getAdvancedDetails(gameID, 30);
+
+        result.elapsedTime = (Date.now() - startTime);
+        return result;
+    }
+
 }  
