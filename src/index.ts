@@ -1,4 +1,5 @@
 import { RequestBuilder } from './requestBuilder';
+import { UtilApi } from './endpoints/Util';
 import { UserApi } from './endpoints/Users';
 import { GameApi } from './endpoints/Games';
 import { AllianceApi } from './endpoints/Alliances';
@@ -6,6 +7,7 @@ import { AllianceApi } from './endpoints/Alliances';
 export class BattlefrontAPI {
   private config: Record<string, any>;
 
+  public Util: UtilApi;
   public Users: UserApi;
   public Games: GameApi;
   public Alliances: AllianceApi;
@@ -13,6 +15,7 @@ export class BattlefrontAPI {
   constructor(config: Record<string, any>) {
     this.config = config;
 
+    this.Util = new UtilApi(this);
     this.Users = new UserApi(this);
     this.Games = new GameApi(this);
     this.Alliances = new AllianceApi(this);
@@ -113,5 +116,3 @@ export class BattlefrontAPI {
   }
 
 }
-
-// export const client = new BattlefrontAPI(config);

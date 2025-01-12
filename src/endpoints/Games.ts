@@ -19,7 +19,7 @@ export class GameApi {
         return result;
     }
 
-    async search(numEntries: number = 10, page: number = 0, lang: string = "en", filter: string = "") {
+    async search(numEntries: number = 10, page: number = 0, lang: string = "en", filter: string = "", scenarioID: number|null = null) {
         const startTime = Date.now();
 
         if (!(this.availableServerLanguages).includes(lang)) {
@@ -39,7 +39,8 @@ export class GameApi {
             isFilterSearch: !!filter,
             search: !!filter ? filter : null,
             global: 1,
-            loadUserLoginData: 1
+            loadUserLoginData: 1,
+            scenarioID: scenarioID
         };
     
         const result = await this.apiClient.sendRequest("getGames", data);
