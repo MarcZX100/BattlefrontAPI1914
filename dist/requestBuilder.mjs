@@ -1,29 +1,5 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
 // src/requestBuilder.ts
-var requestBuilder_exports = {};
-__export(requestBuilder_exports, {
-  RequestBuilder: () => RequestBuilder
-});
-module.exports = __toCommonJS(requestBuilder_exports);
-var import_js_sha1 = require("js-sha1");
+import { sha1 } from "js-sha1";
 var RequestBuilder = class {
   /**
    * Extracts the value of a specific query parameter from a given URL.
@@ -99,15 +75,14 @@ var RequestBuilder = class {
     const encoded = btoa(asParam);
     const postData = `data=${encoded}`;
     const hashBase = key === "open" ? `${key}${action}${encodeURIComponent(encoded)}` : `${key}${action}${asParam}${authHash}`;
-    const hash = (0, import_js_sha1.sha1)(hashBase);
+    const hash = sha1(hashBase);
     const L = this.getParameterByName("L", websiteURL) || 0;
     const apiUrl = `${websiteURL}index.php?eID=api&key=${key}`;
     const url = `${apiUrl}&action=${action}&hash=${hash}&outputFormat=json&apiVersion=${config.webapi.version}&L=${L}&source=${trackingSource}`;
     return { url, postData, type: "POST" };
   }
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
+export {
   RequestBuilder
-});
-//# sourceMappingURL=requestBuilder.js.map
+};
+//# sourceMappingURL=requestBuilder.mjs.map

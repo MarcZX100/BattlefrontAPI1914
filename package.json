@@ -2,16 +2,32 @@
   "name": "bytrofront",
   "version": "1.0.0",
   "description": "Unofficial API wrapper for Bytro games (Supremacy 1914, Call of War and Iron Order).",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "node tests/index.js",
+    "test2": "jest",
     "build": "npx tsc",
+    "build2": "tsup",
     "app": "node dist/index.js",
     "lint": "npx eslint src/**/*.ts",
     "lintfix": "npx eslint src/**/*.ts --fix",
     "doc": "npx typedoc --out docs --entryPointStrategy expand ./src"
   },
-  "keywords": ["bytro", "supremacy", "supremacy1914", "supremacy 1914", "call of war", "iron order", "s1914", "wrapper"],
+  "keywords": [
+    "bytro",
+    "supremacy",
+    "supremacy1914",
+    "supremacy 1914",
+    "call of war",
+    "iron order",
+    "s1914",
+    "wrapper"
+  ],
   "author": "MarcZX100",
   "license": "ISC",
   "dependencies": {
@@ -21,14 +37,19 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/axios": "^0.9.36",
+    "@types/jest": "^29.5.14",
     "@types/js-sha1": "^0.6.3",
     "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.5",
     "typedoc": "^0.27.6",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.19.1"
   }
 }
