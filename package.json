@@ -11,7 +11,7 @@
     "lintfix": "npx eslint src/**/*.ts --fix",
     "doc": "npx typedoc --out docs --entryPointStrategy expand ./src"
   },
-  "keywords": [],
+  "keywords": ["bytro", "supremacy", "supremacy1914", "supremacy 1914", "call of war", "iron order", "s1914", "wrapper"],
   "author": "MarcZX100",
   "license": "ISC",
   "dependencies": {
