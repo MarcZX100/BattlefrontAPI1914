@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __async = (__this, __arguments, generator) => {
   return new Promise((resolve, reject) => {
@@ -181,6 +191,10 @@ CustomErrors.errors = {
   }
 };
 var errors_default = CustomErrors;
+
+// src/index.ts
+var import_puppeteer = __toESM(require("puppeteer"));
+var import_jsdom = require("jsdom");
 
 // src/endpoints/Util.ts
 var UtilApi = class {
@@ -929,6 +943,75 @@ var BytroFront = class {
         console.error(`Error during call to server "${data.gameServer}":`, error);
         throw error;
       }
+    });
+  }
+  /**
+  * Generates a configuration object by simulating a login process for the specified domain.
+  *
+  * This method uses Puppeteer to automate a browser session and interacts with the login
+  * page of the given domain. After logging in, it retrieves an iframe source, navigates to it,
+  * and extracts the configuration object from the page.
+  *
+  * @param username - The username to log in with.
+  * @param password - The password to log in with.
+  * @param domain - The domain to target for login and configuration retrieval. Defaults to "supremacy1914.com".
+  *                 Examples:
+  *                 - "supremacy1914.com" for Supremacy 1914 (default)
+  *                 - "callofwar.com" for Call of War
+  *                 - "ironorder1919.com" for Iron Order
+  *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+  * @returns A Promise resolving to the configuration object extracted from the domain.
+  * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
+  *
+  * @example
+  * ```typescript
+  * const config = await generateConfig("exampleUser", "examplePass", "callofwar.com");
+  * console.log(config);
+  * ```
+  */
+  static generateConfig(username, password, domain = "supremacy1914.com") {
+    return __async(this, null, function* () {
+      const enlace = `https://www.${domain}/index.php?id=188`;
+      const browser = yield import_puppeteer.default.launch({ headless: true });
+      const page = yield browser.newPage();
+      yield page.goto(enlace);
+      try {
+        yield page.click(".login_text");
+      } catch (e) {
+        yield page.click("#sg_login_text");
+      }
+      yield page.type("#loginbox_login_input", username);
+      yield page.type("#loginbox_password_input", password);
+      yield page.click("#func_loginbutton");
+      const iframeSrc = yield new Promise((resolve) => {
+        page.on("response", (response) => __async(this, null, function* () {
+          if (response.url().endsWith("/game.php?bust=1")) {
+            const responseBody = yield response.text();
+            const dom = new import_jsdom.JSDOM(responseBody);
+            const iframe = dom.window.document.querySelector("#ifm");
+            resolve(iframe ? iframe.src : void 0);
+          }
+        }));
+      });
+      if (!iframeSrc) {
+        throw new Error("Iframe source not found");
+      }
+      const newPage = yield browser.newPage();
+      yield newPage.goto(iframeSrc);
+      return new Promise((resolve, reject) => {
+        newPage.on("response", (response) => __async(this, null, function* () {
+          try {
+            if (response.url().includes("/index.php?action=getGames")) {
+              const config = yield newPage.evaluate(() => window.hup.config);
+              yield newPage.close();
+              yield browser.close();
+              resolve(config);
+            }
+          } catch (error) {
+            reject(error);
+          }
+        }));
+      });
     });
   }
 };

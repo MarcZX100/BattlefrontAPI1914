@@ -1,5 +1,7 @@
 import { RequestBuilder } from './requestBuilder';
 import CustomErrors from './errors';
+import puppeteer from "puppeteer";
+import { JSDOM } from "jsdom";
 
 import { UtilApi } from './endpoints/Util';
 import { UserApi } from './endpoints/Users';
@@ -147,4 +149,81 @@ export class BytroFront {
       throw error;
     }
   }
+
+  /**
+ * Generates a configuration object by simulating a login process for the specified domain.
+ *
+ * This method uses Puppeteer to automate a browser session and interacts with the login
+ * page of the given domain. After logging in, it retrieves an iframe source, navigates to it,
+ * and extracts the configuration object from the page.
+ *
+ * @param username - The username to log in with.
+ * @param password - The password to log in with.
+ * @param domain - The domain to target for login and configuration retrieval. Defaults to "supremacy1914.com".
+ *                 Examples:
+ *                 - "supremacy1914.com" for Supremacy 1914 (default)
+ *                 - "callofwar.com" for Call of War
+ *                 - "ironorder1919.com" for Iron Order
+ *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+ * @returns A Promise resolving to the configuration object extracted from the domain.
+ * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
+ *
+ * @example
+ * ```typescript
+ * const config = await generateConfig("exampleUser", "examplePass", "callofwar.com");
+ * console.log(config);
+ * ```
+ */
+  static async generateConfig(username: string, password: string, domain: string = "supremacy1914.com"): Promise<any> {
+    const enlace = `https://www.${domain}/index.php?id=188`;
+
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    await page.goto(enlace);
+
+    try {
+        await page.click(".login_text"); // sup & io
+    } catch {
+        await page.click("#sg_login_text"); // cow
+    }
+    await page.type("#loginbox_login_input", username);
+    await page.type("#loginbox_password_input", password);
+
+    await page.click("#func_loginbutton");
+
+    const iframeSrc: string | undefined = await new Promise((resolve) => {
+        page.on("response", async (response: any) => {
+            if ((response.url()).endsWith("/game.php?bust=1")) {
+                const responseBody = await response.text();
+                const dom = new JSDOM(responseBody);
+                const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
+                resolve(iframe ? iframe.src : undefined);
+            }
+        });
+    });
+
+    if (!iframeSrc) {
+        throw new Error("Iframe source not found");
+    }
+
+    const newPage = await browser.newPage();
+    await newPage.goto(iframeSrc);
+
+    return new Promise((resolve, reject) => {
+        newPage.on("response", async (response: any) => {
+            try {
+                if (response.url().includes("/index.php?action=getGames")) {
+                    const config = await newPage.evaluate(() => (window as any).hup.config);
+                    await newPage.close();
+                    await browser.close();
+                    resolve(config);
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    });
+  }
+
 }

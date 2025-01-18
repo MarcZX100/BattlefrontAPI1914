@@ -157,6 +157,10 @@ CustomErrors.errors = {
 };
 var errors_default = CustomErrors;
 
+// src/index.ts
+import puppeteer from "puppeteer";
+import { JSDOM } from "jsdom";
+
 // src/endpoints/Util.ts
 var UtilApi = class {
   /**
@@ -904,6 +908,75 @@ var BytroFront = class {
         console.error(`Error during call to server "${data.gameServer}":`, error);
         throw error;
       }
+    });
+  }
+  /**
+  * Generates a configuration object by simulating a login process for the specified domain.
+  *
+  * This method uses Puppeteer to automate a browser session and interacts with the login
+  * page of the given domain. After logging in, it retrieves an iframe source, navigates to it,
+  * and extracts the configuration object from the page.
+  *
+  * @param username - The username to log in with.
+  * @param password - The password to log in with.
+  * @param domain - The domain to target for login and configuration retrieval. Defaults to "supremacy1914.com".
+  *                 Examples:
+  *                 - "supremacy1914.com" for Supremacy 1914 (default)
+  *                 - "callofwar.com" for Call of War
+  *                 - "ironorder1919.com" for Iron Order
+  *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+  * @returns A Promise resolving to the configuration object extracted from the domain.
+  * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
+  *
+  * @example
+  * ```typescript
+  * const config = await generateConfig("exampleUser", "examplePass", "callofwar.com");
+  * console.log(config);
+  * ```
+  */
+  static generateConfig(username, password, domain = "supremacy1914.com") {
+    return __async(this, null, function* () {
+      const enlace = `https://www.${domain}/index.php?id=188`;
+      const browser = yield puppeteer.launch({ headless: true });
+      const page = yield browser.newPage();
+      yield page.goto(enlace);
+      try {
+        yield page.click(".login_text");
+      } catch (e) {
+        yield page.click("#sg_login_text");
+      }
+      yield page.type("#loginbox_login_input", username);
+      yield page.type("#loginbox_password_input", password);
+      yield page.click("#func_loginbutton");
+      const iframeSrc = yield new Promise((resolve) => {
+        page.on("response", (response) => __async(this, null, function* () {
+          if (response.url().endsWith("/game.php?bust=1")) {
+            const responseBody = yield response.text();
+            const dom = new JSDOM(responseBody);
+            const iframe = dom.window.document.querySelector("#ifm");
+            resolve(iframe ? iframe.src : void 0);
+          }
+        }));
+      });
+      if (!iframeSrc) {
+        throw new Error("Iframe source not found");
+      }
+      const newPage = yield browser.newPage();
+      yield newPage.goto(iframeSrc);
+      return new Promise((resolve, reject) => {
+        newPage.on("response", (response) => __async(this, null, function* () {
+          try {
+            if (response.url().includes("/index.php?action=getGames")) {
+              const config = yield newPage.evaluate(() => window.hup.config);
+              yield newPage.close();
+              yield browser.close();
+              resolve(config);
+            }
+          } catch (error) {
+            reject(error);
+          }
+        }));
+      });
     });
   }
 };

@@ -1,8 +1,40 @@
-# BytroFront
+# BytroFront Wrapper Documentation
 
-To start running this, log in your account and copy and paste the resulting Object of this console execution in the config.js file:
-```js
-frames.iframe.contentWindow.hup.config
+`BytroFront` is a JavaScript/TypeScript client library that abstracts the complexities of interacting with Bytro services, including APIs for utilities, users, games, and alliances. It supports making generic requests, game-specific requests, and automating configuration retrieval using Puppeteer.
+
+## Installation
+To install `BytroFront`:
+```bash
+npm install bytrofront
 ```
 
-THIS PROJECT HAS NO OFFICIAL RELATIONSHIP WITH BYTRO AND/OR STILLFRONT WHATSOEVER. THIS IS AN UNOFFICIAL API WRAPPER.
+## Usage
+```typescript
+import { BytroFront } from 'bytrofront';
+
+(async () => {
+
+    // Generate game config. Accessible at hup.config in the client
+    let config = await BytroFront.generateConfig("MarcZX10", "realPassword11", "supremacy1914.com");
+
+    const client = new BytroFront(config);
+
+    // Fetch user details
+    client.Users.getDetails(48035824).then((response) => {
+        console.log(response);
+    });
+
+    // Fetch first 10 players in the global ranking
+    client.Users.getRanking("globalRank", 0, 10).then((response) => {
+        console.log(response);
+    });
+
+})
+```
+
+## Additional Information
+Check the official documentation here: [BytroFront Documentation](https://marczx100.github.io/BytroFront/).
+
+If you wish to support us, you can [Buy Us a Coffee](https://buymeacoffee.com/lanutrianetwork).
+
+> Disclaimer: THIS PROJECT HAS NO OFFICIAL RELATIONSHIP WITH BYTRO AND/OR STILLFRONT WHATSOEVER. THIS IS AN UNOFFICIAL API WRAPPER.

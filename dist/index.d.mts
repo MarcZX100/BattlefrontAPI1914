@@ -63,6 +63,31 @@ declare class BytroFront {
      * ```
      */
     sendGameRequest<T>(gameID: string, data: Record<string, any>): Promise<T>;
+    /**
+   * Generates a configuration object by simulating a login process for the specified domain.
+   *
+   * This method uses Puppeteer to automate a browser session and interacts with the login
+   * page of the given domain. After logging in, it retrieves an iframe source, navigates to it,
+   * and extracts the configuration object from the page.
+   *
+   * @param username - The username to log in with.
+   * @param password - The password to log in with.
+   * @param domain - The domain to target for login and configuration retrieval. Defaults to "supremacy1914.com".
+   *                 Examples:
+   *                 - "supremacy1914.com" for Supremacy 1914 (default)
+   *                 - "callofwar.com" for Call of War
+   *                 - "ironorder1919.com" for Iron Order
+   *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+   * @returns A Promise resolving to the configuration object extracted from the domain.
+   * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
+   *
+   * @example
+   * ```typescript
+   * const config = await generateConfig("exampleUser", "examplePass", "callofwar.com");
+   * console.log(config);
+   * ```
+   */
+    static generateConfig(username: string, password: string, domain?: string): Promise<any>;
 }
 
 export { BytroFront };
