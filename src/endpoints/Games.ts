@@ -286,7 +286,7 @@ export class GameApi {
     }
   
     /**
-     * Fetches a map with province statistics for a given game (stateID 4).
+     * Fetches a map with province statistics for a given game (stateID 3).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the map with province statistics or an error if the game is not found.
@@ -294,29 +294,14 @@ export class GameApi {
     async getMap(gameID: number) {
       const startTime = Date.now();
   
-      const result = await this.getAdvancedDetails(gameID, 4);
+      const result = await this.getAdvancedDetails(gameID, 3);
   
       result.elapsedTime = Date.now() - startTime;
       return result;
     }
-  
+
     /**
-     * Fetches game-related statistics (stateID 5).
-     *
-     * @param gameID - The unique identifier for the game.
-     * @returns A promise resolving to the game statistics or an error if the game is not found.
-     */
-    async getStatistics(gameID: number) {
-      const startTime = Date.now();
-  
-      const result = await this.getAdvancedDetails(gameID, 5);
-  
-      result.elapsedTime = Date.now() - startTime;
-      return result;
-    }
-  
-    /**
-     * Fetches the scenario statistics for a game (stateID 6).
+     * Fetches the scenario statistics for a game (stateID 12).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the scenario statistics or an error if the game is not found.
@@ -324,10 +309,26 @@ export class GameApi {
     async getScenarioStatistics(gameID: number) {
       const startTime = Date.now();
   
-      const result = await this.getAdvancedDetails(gameID, 6);
+      const result = await this.getAdvancedDetails(gameID, 12);
   
       result.elapsedTime = Date.now() - startTime;
       return result;
     }
+  
+    /**
+     * Fetches game-related statistics (stateID 30).
+     *
+     * @param gameID - The unique identifier for the game.
+     * @returns A promise resolving to the game statistics or an error if the game is not found.
+     */
+    async getStatistics(gameID: number) {
+      const startTime = Date.now();
+  
+      const result = await this.getAdvancedDetails(gameID, 30);
+  
+      result.elapsedTime = Date.now() - startTime;
+      return result;
+    }
+  
   }
   
