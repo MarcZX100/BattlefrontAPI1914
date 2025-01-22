@@ -508,6 +508,32 @@ var GameApi = class {
     });
   }
   /**
+   * Fetches an overview of a game, only including properties.
+   *
+   * @param gameID - The unique identifier for the game.
+   * @returns A promise resolving to the game overview or an error if the game is not found.
+   */
+  getOverviewProperties(gameID) {
+    return __async(this, null, function* () {
+      const startTime = Date.now();
+      const properties = yield this.apiClient.sendRequest("getGames", { gameID }).then((result2) => {
+        var _a;
+        return (_a = result2.result[0]) == null ? void 0 : _a.properties;
+      });
+      if (!properties) {
+        return this.apiClient.errors.getError("game not found");
+      }
+      const result = {
+        resultCode: 0,
+        resultMessage: "ok",
+        result: properties,
+        version: "4831_live",
+        elapsedTime: Date.now() - startTime
+      };
+      return result;
+    });
+  }
+  /**
    * Fetches advanced game details based on state and state-specific options.
    *
    * @param gameID - The unique identifier for the game.
@@ -622,7 +648,7 @@ var GameApi = class {
     });
   }
   /**
-   * Fetches a map with province statistics for a given game (stateID 4).
+   * Fetches a map with province statistics for a given game (stateID 3).
    *
    * @param gameID - The unique identifier for the game.
    * @returns A promise resolving to the map with province statistics or an error if the game is not found.
@@ -630,27 +656,13 @@ var GameApi = class {
   getMap(gameID) {
     return __async(this, null, function* () {
       const startTime = Date.now();
-      const result = yield this.getAdvancedDetails(gameID, 4);
+      const result = yield this.getAdvancedDetails(gameID, 3);
       result.elapsedTime = Date.now() - startTime;
       return result;
     });
   }
   /**
-   * Fetches game-related statistics (stateID 5).
-   *
-   * @param gameID - The unique identifier for the game.
-   * @returns A promise resolving to the game statistics or an error if the game is not found.
-   */
-  getStatistics(gameID) {
-    return __async(this, null, function* () {
-      const startTime = Date.now();
-      const result = yield this.getAdvancedDetails(gameID, 5);
-      result.elapsedTime = Date.now() - startTime;
-      return result;
-    });
-  }
-  /**
-   * Fetches the scenario statistics for a game (stateID 6).
+   * Fetches the scenario statistics for a game (stateID 12).
    *
    * @param gameID - The unique identifier for the game.
    * @returns A promise resolving to the scenario statistics or an error if the game is not found.
@@ -658,7 +670,21 @@ var GameApi = class {
   getScenarioStatistics(gameID) {
     return __async(this, null, function* () {
       const startTime = Date.now();
-      const result = yield this.getAdvancedDetails(gameID, 6);
+      const result = yield this.getAdvancedDetails(gameID, 12);
+      result.elapsedTime = Date.now() - startTime;
+      return result;
+    });
+  }
+  /**
+   * Fetches game-related statistics (stateID 30).
+   *
+   * @param gameID - The unique identifier for the game.
+   * @returns A promise resolving to the game statistics or an error if the game is not found.
+   */
+  getStatistics(gameID) {
+    return __async(this, null, function* () {
+      const startTime = Date.now();
+      const result = yield this.getAdvancedDetails(gameID, 30);
       result.elapsedTime = Date.now() - startTime;
       return result;
     });
@@ -936,47 +962,51 @@ var BytroFront = class {
   */
   static generateConfig(username, password, domain = "supremacy1914.com") {
     return __async(this, null, function* () {
-      const enlace = `https://www.${domain}/index.php?id=188`;
-      const browser = yield puppeteer.launch({ headless: true });
-      const page = yield browser.newPage();
-      yield page.goto(enlace);
       try {
-        yield page.click(".login_text");
-      } catch (e) {
-        yield page.click("#sg_login_text");
-      }
-      yield page.type("#loginbox_login_input", username);
-      yield page.type("#loginbox_password_input", password);
-      yield page.click("#func_loginbutton");
-      const iframeSrc = yield new Promise((resolve) => {
-        page.on("response", (response) => __async(this, null, function* () {
-          if (response.url().endsWith("/game.php?bust=1")) {
-            const responseBody = yield response.text();
-            const dom = new JSDOM(responseBody);
-            const iframe = dom.window.document.querySelector("#ifm");
-            resolve(iframe ? iframe.src : void 0);
-          }
-        }));
-      });
-      if (!iframeSrc) {
-        throw new Error("Iframe source not found");
-      }
-      const newPage = yield browser.newPage();
-      yield newPage.goto(iframeSrc);
-      return new Promise((resolve, reject) => {
-        newPage.on("response", (response) => __async(this, null, function* () {
-          try {
-            if (response.url().includes("/index.php?action=getGames")) {
-              const config = yield newPage.evaluate(() => window.hup.config);
-              yield newPage.close();
-              yield browser.close();
-              resolve(config);
+        const enlace = `https://www.${domain}/index.php?id=188`;
+        const browser = yield puppeteer.launch({ headless: true });
+        const page = yield browser.newPage();
+        yield page.goto(enlace);
+        try {
+          yield page.click(".login_text");
+        } catch (e) {
+          yield page.click("#sg_login_text");
+        }
+        yield page.type("#loginbox_login_input", username);
+        yield page.type("#loginbox_password_input", password);
+        yield page.click("#func_loginbutton");
+        const iframeSrc = yield new Promise((resolve) => {
+          page.on("response", (response) => __async(this, null, function* () {
+            if (response.url().endsWith("/game.php?bust=1")) {
+              const responseBody = yield response.text();
+              const dom = new JSDOM(responseBody);
+              const iframe = dom.window.document.querySelector("#ifm");
+              resolve(iframe ? iframe.src : void 0);
             }
-          } catch (error) {
-            reject(error);
-          }
-        }));
-      });
+          }));
+        });
+        if (!iframeSrc) {
+          throw new Error("Iframe source not found");
+        }
+        yield page.close();
+        const newPage = yield browser.newPage();
+        yield newPage.goto(iframeSrc);
+        return new Promise((resolve, reject) => {
+          newPage.on("response", (response) => __async(this, null, function* () {
+            try {
+              if (response.url().includes("/index.php?action=getGames")) {
+                const config = yield newPage.evaluate(() => window.hup.config);
+                yield newPage.close();
+                yield browser.close();
+                resolve(config);
+              }
+            } catch (error) {
+              reject(error);
+            }
+          }));
+        });
+      } catch (e) {
+      }
     });
   }
 };

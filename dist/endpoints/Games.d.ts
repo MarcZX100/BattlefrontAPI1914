@@ -50,6 +50,13 @@ declare class GameApi {
      */
     getOverview(gameID: number): Promise<any>;
     /**
+     * Fetches an overview of a game, only including properties.
+     *
+     * @param gameID - The unique identifier for the game.
+     * @returns A promise resolving to the game overview or an error if the game is not found.
+     */
+    getOverviewProperties(gameID: number): Promise<any>;
+    /**
      * Fetches advanced game details based on state and state-specific options.
      *
      * @param gameID - The unique identifier for the game.
@@ -101,26 +108,26 @@ declare class GameApi {
      */
     getProvinces(gameID: number): Promise<any>;
     /**
-     * Fetches a map with province statistics for a given game (stateID 4).
+     * Fetches a map with province statistics for a given game (stateID 3).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the map with province statistics or an error if the game is not found.
      */
     getMap(gameID: number): Promise<any>;
     /**
-     * Fetches game-related statistics (stateID 5).
-     *
-     * @param gameID - The unique identifier for the game.
-     * @returns A promise resolving to the game statistics or an error if the game is not found.
-     */
-    getStatistics(gameID: number): Promise<any>;
-    /**
-     * Fetches the scenario statistics for a game (stateID 6).
+     * Fetches the scenario statistics for a game (stateID 12).
      *
      * @param gameID - The unique identifier for the game.
      * @returns A promise resolving to the scenario statistics or an error if the game is not found.
      */
     getScenarioStatistics(gameID: number): Promise<any>;
+    /**
+     * Fetches game-related statistics (stateID 30).
+     *
+     * @param gameID - The unique identifier for the game.
+     * @returns A promise resolving to the game statistics or an error if the game is not found.
+     */
+    getStatistics(gameID: number): Promise<any>;
 }
 
 export { GameApi };
