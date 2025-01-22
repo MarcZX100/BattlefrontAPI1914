@@ -161,6 +161,34 @@ export class GameApi {
   
       return result;
     }
+
+    /**
+     * Fetches an overview of a game, only including properties.
+     *
+     * @param gameID - The unique identifier for the game.
+     * @returns A promise resolving to the game overview or an error if the game is not found.
+     */
+    async getOverviewProperties(gameID: number) {
+      const startTime = Date.now();
+  
+      const properties = await this.apiClient
+        .sendRequest("getGames", { gameID })
+        .then((result: any) => result.result[0]?.properties);
+    
+      if (!properties) {
+        return this.apiClient.errors.getError("game not found");
+      }
+  
+      const result = {
+        resultCode: 0,
+        resultMessage: "ok",
+        result: properties,
+        version: "4831_live",
+        elapsedTime: Date.now() - startTime,
+      };
+  
+      return result;
+    }
   
     /**
      * Fetches advanced game details based on state and state-specific options.
