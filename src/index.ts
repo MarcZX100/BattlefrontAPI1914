@@ -27,6 +27,7 @@ export class BytroFront {
 
   /**
    * Initializes the API client with a configuration object and sets up endpoint access.
+   * If the config was generated with the generateConfig method, the class's config will update automatically every 6 days
    * 
    * @param config - A configuration object containing settings required for API communication.
    */
@@ -38,6 +39,13 @@ export class BytroFront {
     this.Users = new UserApi(this);
     this.Games = new GameApi(this);
     this.Alliances = new AllianceApi(this);
+
+    if (this.config.customPackageDetails) {
+      setInterval(async () => {
+        this.config = await BytroFront.generateConfig(this.config.customPackageDetails.username, this.config.customPackageDetails.password, this.config.customPackageDetails.domain);
+        console.log(this.config)
+      }, 6 * 24 * 60 * 60 * 1000); // 6 days in milliseconds
+    }
   }
 
   /**
@@ -218,6 +226,11 @@ export class BytroFront {
               try {
                   if (response.url().includes("/index.php?action=getGames")) {
                       const config = await newPage.evaluate(() => (window as any).hup.config);
+                      config.customPackageDetails = {
+                        username,
+                        password,
+                        domain
+                      }
                       await newPage.close();
                       await browser.close();
                       resolve(config);
@@ -228,7 +241,7 @@ export class BytroFront {
           });
       });
     } catch {
-
+      
     }
     
   }

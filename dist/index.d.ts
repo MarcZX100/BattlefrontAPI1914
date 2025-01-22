@@ -20,6 +20,7 @@ declare class BytroFront {
     Alliances: AllianceApi;
     /**
      * Initializes the API client with a configuration object and sets up endpoint access.
+     * If the config was generated with the generateConfig method, the class's config will update automatically every 6 days
      *
      * @param config - A configuration object containing settings required for API communication.
      */
