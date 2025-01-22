@@ -175,55 +175,62 @@ export class BytroFront {
  * ```
  */
   static async generateConfig(username: string, password: string, domain: string = "supremacy1914.com"): Promise<any> {
-    const enlace = `https://www.${domain}/index.php?id=188`;
-
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-
-    await page.goto(enlace);
-
     try {
-        await page.click(".login_text"); // sup & io
+      const enlace = `https://www.${domain}/index.php?id=188`;
+
+      const browser = await puppeteer.launch({ headless: true });
+      const page = await browser.newPage();
+  
+      await page.goto(enlace);
+  
+      try {
+          await page.click(".login_text"); // sup & io
+      } catch {
+          await page.click("#sg_login_text"); // cow
+      }
+      await page.type("#loginbox_login_input", username);
+      await page.type("#loginbox_password_input", password);
+  
+      await page.click("#func_loginbutton");
+  
+      const iframeSrc: string | undefined = await new Promise((resolve) => {
+          page.on("response", async (response: any) => {
+              if ((response.url()).endsWith("/game.php?bust=1")) {
+                  const responseBody = await response.text();
+                  const dom = new JSDOM(responseBody);
+                  const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
+                  resolve(iframe ? iframe.src : undefined);
+              }
+          });
+      });
+  
+      if (!iframeSrc) {
+          throw new Error("Iframe source not found");
+      }
+
+      await page.close();
+  
+      const newPage = await browser.newPage();
+      await newPage.goto(iframeSrc);
+  
+      return new Promise((resolve, reject) => {
+          newPage.on("response", async (response: any) => {
+              try {
+                  if (response.url().includes("/index.php?action=getGames")) {
+                      const config = await newPage.evaluate(() => (window as any).hup.config);
+                      await newPage.close();
+                      await browser.close();
+                      resolve(config);
+                  }
+              } catch (error) {
+                  reject(error);
+              }
+          });
+      });
     } catch {
-        await page.click("#sg_login_text"); // cow
+
     }
-    await page.type("#loginbox_login_input", username);
-    await page.type("#loginbox_password_input", password);
-
-    await page.click("#func_loginbutton");
-
-    const iframeSrc: string | undefined = await new Promise((resolve) => {
-        page.on("response", async (response: any) => {
-            if ((response.url()).endsWith("/game.php?bust=1")) {
-                const responseBody = await response.text();
-                const dom = new JSDOM(responseBody);
-                const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
-                resolve(iframe ? iframe.src : undefined);
-            }
-        });
-    });
-
-    if (!iframeSrc) {
-        throw new Error("Iframe source not found");
-    }
-
-    const newPage = await browser.newPage();
-    await newPage.goto(iframeSrc);
-
-    return new Promise((resolve, reject) => {
-        newPage.on("response", async (response: any) => {
-            try {
-                if (response.url().includes("/index.php?action=getGames")) {
-                    const config = await newPage.evaluate(() => (window as any).hup.config);
-                    await newPage.close();
-                    await browser.close();
-                    resolve(config);
-                }
-            } catch (error) {
-                reject(error);
-            }
-        });
-    });
+    
   }
 
 }
