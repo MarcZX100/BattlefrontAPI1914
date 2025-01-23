@@ -40,7 +40,7 @@ export class BytroFront {
     this.Games = new GameApi(this);
     this.Alliances = new AllianceApi(this);
 
-    if (this.config.customPackageDetails) {
+    if (this.config.customPackageDetails && this.config.customPackageDetails.autoGenerate) {
       setInterval(async () => {
         this.config = await BytroFront.generateConfig(this.config.customPackageDetails.username, this.config.customPackageDetails.password, this.config.customPackageDetails.domain);
         console.log(this.config)
@@ -173,6 +173,7 @@ export class BytroFront {
  *                 - "callofwar.com" for Call of War
  *                 - "ironorder1919.com" for Iron Order
  *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+ * @param autoGenerate - Whether to auto generate login every 6 days when being handled by BytroFront instance.
  * @returns A Promise resolving to the configuration object extracted from the domain.
  * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
  *
@@ -182,7 +183,7 @@ export class BytroFront {
  * console.log(config);
  * ```
  */
-  static async generateConfig(username: string, password: string, domain: string = "supremacy1914.com"): Promise<any> {
+  static async generateConfig(username: string, password: string, domain: string = "supremacy1914.com", autoGenerate: boolean = true): Promise<any> {
     try {
       const enlace = `https://www.${domain}/index.php?id=188`;
 
@@ -229,7 +230,8 @@ export class BytroFront {
                       config.customPackageDetails = {
                         username,
                         password,
-                        domain
+                        domain,
+                        autoGenerate
                       }
                       await newPage.close();
                       await browser.close();

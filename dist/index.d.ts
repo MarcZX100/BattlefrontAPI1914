@@ -79,6 +79,7 @@ declare class BytroFront {
    *                 - "callofwar.com" for Call of War
    *                 - "ironorder1919.com" for Iron Order
    *                 - "supremacy1914.es" for the Spanish version of Supremacy 1914 (still allows data scrapping in other languages)
+   * @param autoGenerate - Whether to auto generate login every 6 days when being handled by BytroFront instance.
    * @returns A Promise resolving to the configuration object extracted from the domain.
    * @throws An error if the iframe source cannot be located or if the configuration retrieval fails.
    *
@@ -88,7 +89,7 @@ declare class BytroFront {
    * console.log(config);
    * ```
    */
-    static generateConfig(username: string, password: string, domain?: string): Promise<any>;
+    static generateConfig(username: string, password: string, domain?: string, autoGenerate?: boolean): Promise<any>;
 }
 
 export { BytroFront };
