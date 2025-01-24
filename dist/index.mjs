@@ -970,10 +970,16 @@ var BytroFront = class _BytroFront {
   */
   static generateConfig(username, password, domain = "supremacy1914.com", autoGenerate = true) {
     return __async(this, null, function* () {
+      let browser;
+      let page;
+      let newPage;
       try {
+        if (!username || !password) {
+          throw new Error("Username and password are required");
+        }
         const enlace = `https://www.${domain}/index.php?id=188`;
-        const browser = yield puppeteer.launch({ headless: true });
-        const page = yield browser.newPage();
+        browser = yield puppeteer.launch({ headless: true });
+        page = yield browser.newPage();
         yield page.goto(enlace);
         try {
           yield page.click(".login_text");
@@ -983,43 +989,72 @@ var BytroFront = class _BytroFront {
         yield page.type("#loginbox_login_input", username);
         yield page.type("#loginbox_password_input", password);
         yield page.click("#func_loginbutton");
-        const iframeSrc = yield new Promise((resolve) => {
-          page.on("response", (response) => __async(this, null, function* () {
-            if (response.url().endsWith("/game.php?bust=1")) {
-              const responseBody = yield response.text();
-              const dom = new JSDOM(responseBody);
-              const iframe = dom.window.document.querySelector("#ifm");
-              resolve(iframe ? iframe.src : void 0);
-            }
-          }));
-        });
+        const iframeSrc = yield Promise.race([
+          new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error("Iframe response timed out")), 1e4);
+            page.on("response", (response) => __async(this, null, function* () {
+              if (response.url().endsWith("/game.php?bust=1")) {
+                clearTimeout(timeout);
+                const responseBody = yield response.text();
+                const dom = new JSDOM(responseBody);
+                const iframe = dom.window.document.querySelector("#ifm");
+                resolve(iframe ? iframe.src : "");
+              }
+            }));
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Iframe response timed out")), 1e4))
+        ]);
         if (!iframeSrc) {
           throw new Error("Iframe source not found");
         }
+        page.removeAllListeners("response");
         yield page.close();
-        const newPage = yield browser.newPage();
+        newPage = yield browser.newPage();
         yield newPage.goto(iframeSrc);
-        return new Promise((resolve, reject) => {
-          newPage.on("response", (response) => __async(this, null, function* () {
-            try {
-              if (response.url().includes("/index.php?action=getGames")) {
-                const config = yield newPage.evaluate(() => window.hup.config);
-                config.customPackageDetails = {
-                  username,
-                  password,
-                  domain,
-                  autoGenerate
-                };
-                yield newPage.close();
-                yield browser.close();
-                resolve(config);
+        const config = yield Promise.race([
+          new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error("Config response timed out")), 1e4);
+            newPage.on("response", (response) => __async(this, null, function* () {
+              try {
+                if (response.url().includes("/index.php?action=getGames")) {
+                  const config2 = yield newPage.evaluate(() => {
+                    var _a, _b;
+                    const hupConfig = (_b = (_a = window.hup) == null ? void 0 : _a.config) != null ? _b : null;
+                    return hupConfig;
+                  });
+                  clearTimeout(timeout);
+                  if (config2) {
+                    config2.customPackageDetails = { username, password, domain, autoGenerate };
+                    resolve(config2);
+                  } else {
+                    reject(new Error("Config not found in the page"));
+                  }
+                }
+              } catch (error) {
+                clearTimeout(timeout);
+                reject(error);
               }
-            } catch (error) {
-              reject(error);
-            }
-          }));
-        });
-      } catch (e) {
+            }));
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Config response timed out")), 1e4))
+        ]);
+        if (!config) {
+          throw new Error("Failed to retrieve configuration");
+        }
+        return config;
+      } catch (error) {
+        console.error("Error in generateConfig:", error);
+        throw error;
+      } finally {
+        if (newPage && !newPage.isClosed()) {
+          newPage.removeAllListeners("response");
+          yield newPage.close();
+        }
+        if (page && !page.isClosed()) {
+          page.removeAllListeners("response");
+          yield page.close();
+        }
+        if (browser) yield browser.close();
       }
     });
   }

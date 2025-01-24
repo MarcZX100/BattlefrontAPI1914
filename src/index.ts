@@ -1,6 +1,6 @@
 import { RequestBuilder } from './requestBuilder';
 import CustomErrors from './errors';
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer';
 import { JSDOM } from "jsdom";
 
 import { UtilApi } from './endpoints/Util';
@@ -183,69 +183,124 @@ export class BytroFront {
  * console.log(config);
  * ```
  */
-  static async generateConfig(username: string, password: string, domain: string = "supremacy1914.com", autoGenerate: boolean = true): Promise<any> {
-    try {
-      const enlace = `https://www.${domain}/index.php?id=188`;
-
-      const browser = await puppeteer.launch({ headless: true });
-      const page = await browser.newPage();
+  static async generateConfig(
+    username: string,
+    password: string,
+    domain: string = "supremacy1914.com",
+    autoGenerate: boolean = true
+  ): Promise<any> {
+    let browser: any;
+    let page: any;
+    let newPage: any;
   
+    try {
+      // Validate inputs
+      if (!username || !password) {
+        throw new Error("Username and password are required");
+      }
+  
+      const enlace = `https://www.${domain}/index.php?id=188`;
+  
+      // Launch Puppeteer browser
+      browser = await puppeteer.launch({ headless: true });
+      page = await browser.newPage();
+  
+      // Navigate to the login page
       await page.goto(enlace);
   
+      // Handle login button clicks (sup & io vs cow)
       try {
-          await page.click(".login_text"); // sup & io
+        await page.click(".login_text"); // For supremacy1914 and iron order
       } catch {
-          await page.click("#sg_login_text"); // cow
+        await page.click("#sg_login_text"); // For call of war
       }
+  
+      // Input username and password
       await page.type("#loginbox_login_input", username);
       await page.type("#loginbox_password_input", password);
   
+      // Click login button
       await page.click("#func_loginbutton");
   
-      const iframeSrc: string | undefined = await new Promise((resolve) => {
+      // Wait for iframe response
+      const iframeSrc: any = await Promise.race([
+        new Promise<string>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error("Iframe response timed out")), 10000); // Timeout after 10 seconds
           page.on("response", async (response: any) => {
-              if ((response.url()).endsWith("/game.php?bust=1")) {
-                  const responseBody = await response.text();
-                  const dom = new JSDOM(responseBody);
-                  const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
-                  resolve(iframe ? iframe.src : undefined);
-              }
+            if (response.url().endsWith("/game.php?bust=1")) {
+              clearTimeout(timeout);
+              const responseBody = await response.text();
+              const dom = new JSDOM(responseBody);
+              const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
+              resolve(iframe ? iframe.src : "");
+            }
           });
-      });
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Iframe response timed out")), 10000)),
+      ]);
   
       if (!iframeSrc) {
-          throw new Error("Iframe source not found");
+        throw new Error("Iframe source not found");
       }
-
+  
+      // Close the login page
+      page.removeAllListeners('response'); // Remove listeners
       await page.close();
   
-      const newPage = await browser.newPage();
+      // Open the iframe source in a new page
+      newPage = await browser.newPage();
       await newPage.goto(iframeSrc);
   
-      return new Promise((resolve, reject) => {
+      // Extract configuration from the new page
+      const config: any = await Promise.race([
+        new Promise<any>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error("Config response timed out")), 10000); // Timeout after 10 seconds
           newPage.on("response", async (response: any) => {
-              try {
-                  if (response.url().includes("/index.php?action=getGames")) {
-                      const config = await newPage.evaluate(() => (window as any).hup.config);
-                      config.customPackageDetails = {
-                        username,
-                        password,
-                        domain,
-                        autoGenerate
-                      }
-                      await newPage.close();
-                      await browser.close();
-                      resolve(config);
-                  }
-              } catch (error) {
-                  reject(error);
+            try {
+              if (response.url().includes("/index.php?action=getGames")) {
+                const config = await newPage.evaluate(() => {
+                  const hupConfig = (window as any).hup?.config ?? null;
+                  return hupConfig;
+                });
+                clearTimeout(timeout);
+                if (config) {
+                  config.customPackageDetails = { username, password, domain, autoGenerate };
+                  resolve(config);
+                } else {
+                  reject(new Error("Config not found in the page"));
+                }
               }
+            } catch (error) {
+              clearTimeout(timeout);
+              reject(error);
+            }
           });
-      });
-    } catch {
-      
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Config response timed out")), 10000)),
+      ]);
+  
+      if (!config) {
+        throw new Error("Failed to retrieve configuration");
+      }
+  
+      return config;
+    } catch (error) {
+      console.error("Error in generateConfig:", error);
+      throw error; // Rethrow the error for the caller to handle
+    } finally {
+      // Ensure resources are cleaned up
+      if (newPage && !newPage.isClosed()) {
+        newPage.removeAllListeners('response'); // Remove listeners
+        await newPage.close();
+      }
+      if (page && !page.isClosed()) {
+        page.removeAllListeners('response'); // Remove listeners
+        await page.close();
+      }
+      if (browser) await browser.close();
     }
-    
   }
+  
+  
 
 }
