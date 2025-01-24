@@ -211,14 +211,19 @@ export class BytroFront {
   
       // Handle login button clicks with visibility and timing checks
       console.log("test 2")
-      try {
-        await page.waitForSelector(".login_text", { visible: true, timeout: 5000 });
-        await page.click(".login_text"); // Supremacy1914 and Iron Order
-      } catch (e) {
-        console.warn("Fallback to #sg_login_text");
-        await page.waitForSelector("#sg_login_text", { visible: true, timeout: 5000 });
-        await page.click("#sg_login_text"); // Call of War
-      }
+      const elementHandle = await Promise.race([
+        page.waitForSelector(".login_text", { visible: true, timeout: 10000 }), // Supremacy1914 and Iron Order
+        page.waitForSelector("#sg_login_text", { visible: true, timeout: 10000 }), // Call of War
+      ]);
+
+      if (await page.$(".login_text")) { // Supremacy1914 and Iron Order
+        await page.click(".login_text"); 
+      } else if (await page.$("#sg_login_text")) { // Call of War
+        await page.click("#sg_login_text");
+      };
+      await page.screenshot({
+        path: 'aaaa1.png',
+      });
   
       // Input credentials
       await page.waitForSelector("#loginbox_login_input", { visible: true });
@@ -229,11 +234,15 @@ export class BytroFront {
       console.log("test 3")
       await page.waitForSelector("#func_loginbutton", { visible: true });
       await page.screenshot({
-        path: 'aaaa.png',
+        path: 'aaaa2.png',
       });
             
       await page.click("#func_loginbutton");
   
+      await page.screenshot({
+        path: 'aaaa3.png',
+      });
+
       // Wait for iframe response
       const iframeSrc: any = await Promise.race([
         new Promise<string>((resolve, reject) => {

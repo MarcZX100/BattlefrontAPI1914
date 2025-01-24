@@ -1021,23 +1021,33 @@ var BytroFront = class _BytroFront {
         page = yield browser.newPage();
         yield page.goto(enlace);
         console.log("test 2");
-        try {
-          yield page.waitForSelector(".login_text", { visible: true, timeout: 5e3 });
+        const elementHandle = yield Promise.race([
+          page.waitForSelector(".login_text", { visible: true, timeout: 1e4 }),
+          // Supremacy1914 and Iron Order
+          page.waitForSelector("#sg_login_text", { visible: true, timeout: 1e4 })
+          // Call of War
+        ]);
+        if (yield page.$(".login_text")) {
           yield page.click(".login_text");
-        } catch (e) {
-          console.warn("Fallback to #sg_login_text");
-          yield page.waitForSelector("#sg_login_text", { visible: true, timeout: 5e3 });
+        } else if (yield page.$("#sg_login_text")) {
           yield page.click("#sg_login_text");
         }
+        ;
+        yield page.screenshot({
+          path: "aaaa1.png"
+        });
         yield page.waitForSelector("#loginbox_login_input", { visible: true });
         yield page.type("#loginbox_login_input", username);
         yield page.type("#loginbox_password_input", password);
         console.log("test 3");
         yield page.waitForSelector("#func_loginbutton", { visible: true });
         yield page.screenshot({
-          path: "aaaa.png"
+          path: "aaaa2.png"
         });
         yield page.click("#func_loginbutton");
+        yield page.screenshot({
+          path: "aaaa3.png"
+        });
         const iframeSrc = yield Promise.race([
           new Promise((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error("Iframe response timed out")), 1e4);
