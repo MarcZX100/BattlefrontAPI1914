@@ -202,7 +202,10 @@ export class BytroFront {
       const enlace = `https://www.${domain}/index.php?id=188`;
   
       // Launch Puppeteer browser
-      browser = await puppeteer.launch({ headless: true });
+      browser = await puppeteer.launch({ 
+        args: ['--no-sandbox'],
+        headless: true
+      });
       page = await browser.newPage();
   
       // Navigate to the login page

@@ -978,7 +978,10 @@ var BytroFront = class _BytroFront {
           throw new Error("Username and password are required");
         }
         const enlace = `https://www.${domain}/index.php?id=188`;
-        browser = yield puppeteer.launch({ headless: true });
+        browser = yield puppeteer.launch({
+          args: ["--no-sandbox"],
+          headless: true
+        });
         page = yield browser.newPage();
         yield page.goto(enlace);
         try {
