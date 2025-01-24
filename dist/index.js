@@ -1008,7 +1008,7 @@ var BytroFront = class _BytroFront {
       let browser;
       let page;
       let newPage;
-      console.log("test");
+      console.log("test 1");
       try {
         if (!username || !password) {
           throw new Error("Username and password are required");
@@ -1020,6 +1020,7 @@ var BytroFront = class _BytroFront {
         });
         page = yield browser.newPage();
         yield page.goto(enlace);
+        console.log("test 2");
         try {
           yield page.waitForSelector(".login_text", { visible: true, timeout: 5e3 });
           yield page.click(".login_text");
@@ -1031,6 +1032,7 @@ var BytroFront = class _BytroFront {
         yield page.waitForSelector("#loginbox_login_input", { visible: true });
         yield page.type("#loginbox_login_input", username);
         yield page.type("#loginbox_password_input", password);
+        console.log("test 3");
         yield page.waitForSelector("#func_loginbutton", { visible: true });
         yield page.click("#func_loginbutton");
         const iframeSrc = yield Promise.race([
