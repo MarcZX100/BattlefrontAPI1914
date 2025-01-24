@@ -986,18 +986,49 @@ var BytroFront = class _BytroFront {
         page = yield browser.newPage();
         yield page.goto(enlace);
         console.log("test 2");
-        const elementHandle = yield Promise.race([
-          page.waitForSelector(".login_text", { visible: true, timeout: 1e4 }),
-          // Supremacy1914 and Iron Order
-          page.waitForSelector("#sg_login_text", { visible: true, timeout: 1e4 })
-          // Call of War
-        ]);
-        if (yield page.$(".login_text")) {
-          yield page.click(".login_text");
-        } else if (yield page.$("#sg_login_text")) {
-          yield page.click("#sg_login_text");
+        let loginBoxOpen = void 0;
+        if (yield page.$("#login_arrow")) {
+          loginBoxOpen = yield page.$eval("#login_arrow", (el) => {
+            return window.getComputedStyle(el).transform.includes(
+              "matrix(-1, 0, 0, -1,"
+            );
+          });
+        } else if (yield page.$(".expand_arrow")) {
+          loginBoxOpen = yield page.$eval(".expand_arrow", (el) => {
+            return el.classList.contains("arrow_up");
+          });
         }
-        ;
+        if (loginBoxOpen === void 0) {
+          throw new Error("Could not determine the state of the login box.");
+        }
+        if (!loginBoxOpen) {
+          console.log("Login box is closed. Clicking to open...");
+          const elementHandle = yield Promise.race([
+            page.waitForSelector(".login_text", {
+              visible: true,
+              timeout: 1e4
+            }),
+            // Supremacy1914 and Iron Order
+            page.waitForSelector("#sg_login_text", {
+              visible: true,
+              timeout: 1e4
+            })
+            // Call of War
+          ]);
+          if (yield page.$(".login_text")) {
+            console.log("Clicking .login_text...");
+            yield page.click(".login_text");
+          } else if (yield page.$("#sg_login_text")) {
+            console.log("Clicking #sg_login_text...");
+            yield page.click("#sg_login_text");
+          }
+          yield page.waitForSelector("#loginbox_login_input", {
+            visible: true,
+            timeout: 1e4
+          });
+        } else {
+          console.log("Login box is already open. No need to click.");
+        }
         yield page.screenshot({
           path: "aaaa1.png"
         });
@@ -1015,18 +1046,25 @@ var BytroFront = class _BytroFront {
         });
         const iframeSrc = yield Promise.race([
           new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error("Iframe response timed out")), 1e4);
+            const timeout = setTimeout(
+              () => reject(new Error("Iframe response timed out")),
+              1e4
+            );
             page.on("response", (response) => __async(this, null, function* () {
               if (response.url().endsWith("/game.php?bust=1")) {
                 clearTimeout(timeout);
                 const responseBody = yield response.text();
                 const dom = new JSDOM(responseBody);
-                const iframe = dom.window.document.querySelector("#ifm");
+                const iframe = dom.window.document.querySelector(
+                  "#ifm"
+                );
                 resolve(iframe ? iframe.src : "");
               }
             }));
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("Iframe response timed out")), 1e4))
+          new Promise(
+            (_, reject) => setTimeout(() => reject(new Error("Iframe response timed out")), 1e4)
+          )
         ]);
         if (!iframeSrc) {
           throw new Error("Iframe source not found");

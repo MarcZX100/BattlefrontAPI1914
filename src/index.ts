@@ -192,7 +192,7 @@ export class BytroFront {
     let browser: any;
     let page: any;
     let newPage: any;
-    console.log("test 1")
+    console.log("test 1");
   
     try {
       if (!username || !password) {
@@ -201,28 +201,71 @@ export class BytroFront {
   
       const enlace = `https://www.${domain}/index.php?id=188`;
   
-      browser = await puppeteer.launch({ 
-        args: ['--no-sandbox', '--disable-setuid-sandbox'], 
-        headless: true 
+      browser = await puppeteer.launch({
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        headless: true,
       });
   
       page = await browser.newPage();
       await page.goto(enlace);
   
       // Handle login button clicks with visibility and timing checks
-      console.log("test 2")
-      const elementHandle = await Promise.race([
-        page.waitForSelector(".login_text", { visible: true, timeout: 10000 }), // Supremacy1914 and Iron Order
-        page.waitForSelector("#sg_login_text", { visible: true, timeout: 10000 }), // Call of War
-      ]);
-
-      if (await page.$(".login_text")) { // Supremacy1914 and Iron Order
-        await page.click(".login_text"); 
-      } else if (await page.$("#sg_login_text")) { // Call of War
-        await page.click("#sg_login_text");
-      };
+      console.log("test 2");
+  
+      let loginBoxOpen: boolean | undefined = undefined;
+  
+      if (await page.$("#login_arrow")) {
+        // Supremacy1914 and Iron Order: Check the transform property
+        loginBoxOpen = await page.$eval("#login_arrow", (el: any) => {
+          return window.getComputedStyle(el).transform.includes(
+            "matrix(-1, 0, 0, -1,"
+          );
+        });
+      } else if (await page.$(".expand_arrow")) {
+        // Call of War: Check the class of expand_arrow
+        loginBoxOpen = await page.$eval(".expand_arrow", (el: any) => {
+          return el.classList.contains("arrow_up"); // Login box is open if arrow_up
+        });
+      }
+  
+      if (loginBoxOpen === undefined) {
+        throw new Error("Could not determine the state of the login box.");
+      }
+  
+      if (!loginBoxOpen) {
+        console.log("Login box is closed. Clicking to open...");
+  
+        const elementHandle = await Promise.race([
+          page.waitForSelector(".login_text", {
+            visible: true,
+            timeout: 10000,
+          }), // Supremacy1914 and Iron Order
+          page.waitForSelector("#sg_login_text", {
+            visible: true,
+            timeout: 10000,
+          }), // Call of War
+        ]);
+  
+        // Click the appropriate button based on the game
+        if (await page.$(".login_text")) {
+          console.log("Clicking .login_text...");
+          await page.click(".login_text");
+        } else if (await page.$("#sg_login_text")) {
+          console.log("Clicking #sg_login_text...");
+          await page.click("#sg_login_text");
+        }
+  
+        // Wait for the login box inputs to appear
+        await page.waitForSelector("#loginbox_login_input", {
+          visible: true,
+          timeout: 10000,
+        });
+      } else {
+        console.log("Login box is already open. No need to click.");
+      }
+  
       await page.screenshot({
-        path: 'aaaa1.png',
+        path: "aaaa1.png",
       });
   
       // Input credentials
@@ -231,33 +274,40 @@ export class BytroFront {
       await page.type("#loginbox_password_input", password);
   
       // Click login button
-      console.log("test 3")
+      console.log("test 3");
       await page.waitForSelector("#func_loginbutton", { visible: true });
       await page.screenshot({
-        path: 'aaaa2.png',
+        path: "aaaa2.png",
       });
-            
+  
       await page.click("#func_loginbutton");
   
       await page.screenshot({
-        path: 'aaaa3.png',
+        path: "aaaa3.png",
       });
-
+  
       // Wait for iframe response
       const iframeSrc: any = await Promise.race([
         new Promise<string>((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error("Iframe response timed out")), 10000);
+          const timeout = setTimeout(
+            () => reject(new Error("Iframe response timed out")),
+            10000
+          );
           page.on("response", async (response: any) => {
             if (response.url().endsWith("/game.php?bust=1")) {
               clearTimeout(timeout);
               const responseBody = await response.text();
               const dom = new JSDOM(responseBody);
-              const iframe = dom.window.document.querySelector("#ifm") as HTMLIFrameElement | null;
+              const iframe = dom.window.document.querySelector(
+                "#ifm"
+              ) as HTMLIFrameElement | null;
               resolve(iframe ? iframe.src : "");
             }
           });
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Iframe response timed out")), 10000)),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Iframe response timed out")), 10000)
+        ),
       ]);
   
       if (!iframeSrc) {
@@ -265,7 +315,7 @@ export class BytroFront {
       }
   
       // Close the login page
-      page.removeAllListeners('response');
+      page.removeAllListeners("response");
       await page.close();
   
       // Open iframe in a new page
@@ -288,16 +338,17 @@ export class BytroFront {
       throw error;
     } finally {
       if (newPage && !newPage.isClosed()) {
-        newPage.removeAllListeners('response');
+        newPage.removeAllListeners("response");
         await newPage.close();
       }
       if (page && !page.isClosed()) {
-        page.removeAllListeners('response');
+        page.removeAllListeners("response");
         await page.close();
       }
       if (browser) await browser.close();
     }
   }
+  
   
   
   
