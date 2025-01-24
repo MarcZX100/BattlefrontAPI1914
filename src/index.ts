@@ -192,7 +192,7 @@ export class BytroFront {
     let browser: any;
     let page: any;
     let newPage: any;
-    console.log("test")
+    console.log("test 1")
   
     try {
       if (!username || !password) {
@@ -210,6 +210,7 @@ export class BytroFront {
       await page.goto(enlace);
   
       // Handle login button clicks with visibility and timing checks
+      console.log("test 2")
       try {
         await page.waitForSelector(".login_text", { visible: true, timeout: 5000 });
         await page.click(".login_text"); // Supremacy1914 and Iron Order
@@ -225,6 +226,7 @@ export class BytroFront {
       await page.type("#loginbox_password_input", password);
   
       // Click login button
+      console.log("test 3")
       await page.waitForSelector("#func_loginbutton", { visible: true });
       await page.click("#func_loginbutton");
   
