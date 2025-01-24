@@ -1034,6 +1034,9 @@ var BytroFront = class _BytroFront {
         yield page.type("#loginbox_password_input", password);
         console.log("test 3");
         yield page.waitForSelector("#func_loginbutton", { visible: true });
+        yield page.screenshot({
+          path: "aaaa.png"
+        });
         yield page.click("#func_loginbutton");
         const iframeSrc = yield Promise.race([
           new Promise((resolve, reject) => {

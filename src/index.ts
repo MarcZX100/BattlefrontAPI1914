@@ -228,6 +228,10 @@ export class BytroFront {
       // Click login button
       console.log("test 3")
       await page.waitForSelector("#func_loginbutton", { visible: true });
+      await page.screenshot({
+        path: 'aaaa.png',
+      });
+            
       await page.click("#func_loginbutton");
   
       // Wait for iframe response
