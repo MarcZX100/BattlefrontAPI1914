@@ -989,9 +989,7 @@ var BytroFront = class _BytroFront {
         let loginBoxOpen = void 0;
         if (yield page.$("#login_arrow")) {
           loginBoxOpen = yield page.$eval("#login_arrow", (el) => {
-            return window.getComputedStyle(el).transform.includes(
-              "matrix(-1, 0, 0, -1,"
-            );
+            return el.style[0] == "transform";
           });
         } else if (yield page.$(".expand_arrow")) {
           loginBoxOpen = yield page.$eval(".expand_arrow", (el) => {

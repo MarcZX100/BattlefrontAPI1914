@@ -217,9 +217,7 @@ export class BytroFront {
       if (await page.$("#login_arrow")) {
         // Supremacy1914 and Iron Order: Check the transform property
         loginBoxOpen = await page.$eval("#login_arrow", (el: any) => {
-          return window.getComputedStyle(el).transform.includes(
-            "matrix(-1, 0, 0, -1,"
-          );
+          return el.style[0] == "transform";
         });
       } else if (await page.$(".expand_arrow")) {
         // Call of War: Check the class of expand_arrow
