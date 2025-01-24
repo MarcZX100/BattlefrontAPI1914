@@ -1014,18 +1014,23 @@ var BytroFront = class _BytroFront {
         }
         const enlace = `https://www.${domain}/index.php?id=188`;
         browser = yield import_puppeteer.default.launch({
-          args: ["--no-sandbox"],
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
           headless: true
         });
         page = yield browser.newPage();
         yield page.goto(enlace);
         try {
+          yield page.waitForSelector(".login_text", { visible: true, timeout: 5e3 });
           yield page.click(".login_text");
         } catch (e) {
+          console.warn("Fallback to #sg_login_text");
+          yield page.waitForSelector("#sg_login_text", { visible: true, timeout: 5e3 });
           yield page.click("#sg_login_text");
         }
+        yield page.waitForSelector("#loginbox_login_input", { visible: true });
         yield page.type("#loginbox_login_input", username);
         yield page.type("#loginbox_password_input", password);
+        yield page.waitForSelector("#func_loginbutton", { visible: true });
         yield page.click("#func_loginbutton");
         const iframeSrc = yield Promise.race([
           new Promise((resolve, reject) => {
@@ -1049,36 +1054,15 @@ var BytroFront = class _BytroFront {
         yield page.close();
         newPage = yield browser.newPage();
         yield newPage.goto(iframeSrc);
-        const config = yield Promise.race([
-          new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error("Config response timed out")), 1e4);
-            newPage.on("response", (response) => __async(this, null, function* () {
-              try {
-                if (response.url().includes("/index.php?action=getGames")) {
-                  const config2 = yield newPage.evaluate(() => {
-                    var _a, _b;
-                    const hupConfig = (_b = (_a = window.hup) == null ? void 0 : _a.config) != null ? _b : null;
-                    return hupConfig;
-                  });
-                  clearTimeout(timeout);
-                  if (config2) {
-                    config2.customPackageDetails = { username, password, domain, autoGenerate };
-                    resolve(config2);
-                  } else {
-                    reject(new Error("Config not found in the page"));
-                  }
-                }
-              } catch (error) {
-                clearTimeout(timeout);
-                reject(error);
-              }
-            }));
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("Config response timed out")), 1e4))
-        ]);
-        if (!config) {
-          throw new Error("Failed to retrieve configuration");
-        }
+        const config = yield newPage.evaluate(() => {
+          var _a, _b;
+          const hupConfig = (_b = (_a = window.hup) == null ? void 0 : _a.config) != null ? _b : null;
+          if (hupConfig) {
+            return hupConfig;
+          }
+          throw new Error("Config not found");
+        });
+        config.customPackageDetails = { username, password, domain, autoGenerate };
         return config;
       } catch (error) {
         console.error("Error in generateConfig:", error);

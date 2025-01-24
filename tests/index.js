@@ -10,9 +10,7 @@ async function test() {
     console.log("Salgo de testear")
     console.log(config)
     // let client = new BytroFront(config);
-
   }
-
 }
 
 test()
