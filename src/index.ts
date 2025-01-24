@@ -192,6 +192,7 @@ export class BytroFront {
     let browser: any;
     let page: any;
     let newPage: any;
+    console.log("test")
   
     try {
       if (!username || !password) {

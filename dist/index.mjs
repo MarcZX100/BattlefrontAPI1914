@@ -973,6 +973,7 @@ var BytroFront = class _BytroFront {
       let browser;
       let page;
       let newPage;
+      console.log("test");
       try {
         if (!username || !password) {
           throw new Error("Username and password are required");
