@@ -43,7 +43,6 @@ export class BytroFront {
     if (this.config.customPackageDetails && this.config.customPackageDetails.autoGenerate) {
       setInterval(async () => {
         this.config = await BytroFront.generateConfig(this.config.customPackageDetails.username, this.config.customPackageDetails.password, this.config.customPackageDetails.domain);
-        console.log(this.config)
       }, 6 * 24 * 60 * 60 * 1000); // 6 days in milliseconds
     }
   }
