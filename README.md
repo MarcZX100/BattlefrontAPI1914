@@ -38,3 +38,6 @@ Check the official documentation here: [BytroFront Documentation](https://marczx
 If you wish to support us, you can [Buy Us a Coffee](https://buymeacoffee.com/lanutrianetwork).
 
 > Disclaimer: THIS PROJECT HAS NO OFFICIAL RELATIONSHIP WITH BYTRO AND/OR STILLFRONT WHATSOEVER. THIS IS AN UNOFFICIAL API WRAPPER.
+
+
+![Alt](https://repobeats.axiom.co/api/embed/e59e2d74aa0299343cdd3c44564667f76472e94f.svg "Repobeats analytics image")
